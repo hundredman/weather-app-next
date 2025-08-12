@@ -43,47 +43,26 @@ A sleek and modern weather application built with Next.js and Tailwind CSS. Sear
 ## 📂 Project Structure
 
 ```
-.
-├── .git/
-├── .next/
-├── node_modules/
-├── public/
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
-├── screenshots/
-│   └── app-screenshot.png
-├── src/
-│   ├── app/
-│   │   ├── favicon.ico
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   ├── components/
-│   │   ├── FavoriteButton.tsx
-│   │   ├── FavoritesBar.tsx
-│   │   ├── HourlyChart.tsx
-│   │   ├── SearchForm.tsx
-│   │   └── WeatherDisplay.tsx
-│   ├── hooks/
-│   │   └── useDebounce.ts
-│   ├── services/
-│   │   └── weatherService.ts
-│   ├── types/
-│   │   └── weather.ts
-│   └── utils/
-│       └── weatherUtils.ts
-├── .gitignore
-├── eslint.config.mjs
-├── LICENSE
-├── next.config.ts
-├── package-lock.json
-├── package.json
-├── postcss.config.mjs
-├── README.md
-└── tsconfig.json
+src/
+├── app/
+│   ├── favicon.ico                 # Favicon for the application
+│   ├── globals.css                 # Global CSS styles
+│   ├── layout.tsx                  # Root layout for the application
+│   └── page.tsx                    # Main page component
+├── components/
+│   ├── FavoriteButton.tsx          # Button to add/remove favorite locations
+│   ├── FavoritesBar.tsx            # Displays saved favorite locations
+│   ├── HourlyChart.tsx             # Chart displaying hourly temperature forecast
+│   ├── SearchForm.tsx              # City search input form
+│   └── WeatherDisplay.tsx          # Displays current weather conditions
+├── hooks/
+│   └── useDebounce.ts              # Hook for debouncing input
+├── services/
+│   └── weatherService.ts           # Handles weather API calls
+├── types/
+│   └── weather.ts                  # Type definitions for weather data
+└── utils/
+    └── weatherUtils.ts             # Helper functions for weather data processing
 ```
 
 
