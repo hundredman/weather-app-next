@@ -2,13 +2,9 @@
 
 A sleek and modern weather application built with Next.js and Tailwind CSS. Search for any city worldwide, get real-time weather data, and save your favorite locations for quick access.
 
-## 📍 Live Demo
-
-[Link to your live application URL](https://www.google.com/search?q=https://your-weather-app-url.com)
-
 ## 📸 Screenshot
 
-*(Suggestion: Add a screenshot of your running application here. You can name it `screenshot.png` and place it in the root of your project.)*
+![App Screenshot](screenshots/app-screenshot.png)
 
 -----
 
