@@ -8,7 +8,7 @@ interface FavoritesBarProps {
 
 export default function FavoritesBar({ favorites, onSelect, isLoading }: FavoritesBarProps) {
   if (favorites.length === 0) {
-    return null; // Do not display anything if there are no favorites
+    return null;
   }
 
   return (

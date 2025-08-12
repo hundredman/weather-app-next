@@ -1,7 +1,6 @@
 'use client';
 
-// Import forwardRef.
-import { useState, useEffect, useRef, KeyboardEvent, forwardRef } from 'react';
+import { useState, useEffect, useRef, KeyboardEvent, forwardRef, MouseEvent } from 'react';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
 import { useDebounce } from '@/hooks/useDebounce';
 import { searchCities } from '@/services/weatherService';
@@ -13,7 +12,6 @@ interface SearchFormProps {
   isLoading: boolean;
 }
 
-// Wrap the component with forwardRef and receive ref as the second argument.
 const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
   ({ onCitySelect, onGetLocation, isLoading }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -21,13 +19,16 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
     const [isFocused, setIsFocused] = useState(false);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
 
-    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    // Debounce search term to avoid firing API calls on every keystroke.
+    const debouncedSearchTerm = useDebounce(searchTerm, 100);
+    // Ref for the main search container, used to detect clicks outside.
     const searchContainerRef = useRef<HTMLDivElement>(null);
 
+    // Fetch city suggestions when the debounced search term changes.
     useEffect(() => {
       const fetchSuggestions = async () => {
         if (debouncedSearchTerm) {
-          setActiveIndex(-1);
+          setActiveIndex(-1); // Reset active index on new search
           const results = await searchCities(debouncedSearchTerm);
           setSuggestions(results);
         } else {
@@ -37,8 +38,9 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
       fetchSuggestions();
     }, [debouncedSearchTerm]);
 
+    // Handles clicks outside the component to close the suggestion list.
     useEffect(() => {
-      function handleClickOutside(event: MouseEvent) {
+      function handleClickOutside(event: globalThis.MouseEvent) {
         if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
           setIsFocused(false);
         }
@@ -47,6 +49,7 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [searchContainerRef]);
 
+    // Triggers when a city is selected, clearing state and notifying the parent component.
     const handleSelectCity = (city: GeoLocation) => {
       setSearchTerm('');
       setSuggestions([]);
@@ -54,10 +57,12 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
       onCitySelect(city);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Handles form submission via the Enter key or by clicking the search icon.
+    const handleSubmit = (e: React.FormEvent | MouseEvent) => {
       e.preventDefault();
       if (isLoading) return;
 
+      // Prioritize the user's highlighted selection, otherwise, use the first suggestion.
       if (activeIndex >= 0 && suggestions[activeIndex]) {
         handleSelectCity(suggestions[activeIndex]);
       } else if (suggestions.length > 0) {
@@ -65,18 +70,18 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
       }
     };
 
-    // Keep the arrow key logic from the previous version, which had no issues.
+    // Handles keyboard navigation (Arrow Up/Down) through the suggestions.
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       if (suggestions.length === 0) return;
 
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setActiveIndex(prevIndex => (prevIndex + 1) % suggestions.length);
+          setActiveIndex(prevIndex => (prevIndex === suggestions.length - 1 ? 0 : prevIndex + 1));
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setActiveIndex(prevIndex => (prevIndex - 1 + suggestions.length) % suggestions.length);
+          setActiveIndex(prevIndex => (prevIndex <= 0 ? suggestions.length - 1 : prevIndex - 1));
           break;
       }
     };
@@ -85,8 +90,8 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
       <form onSubmit={handleSubmit} className="flex w-full max-w-md items-start gap-2">
         <div ref={searchContainerRef} className="relative flex-grow">
           <div className="relative">
-            {/* Connect the ref received from the parent to the input. */}
             <input
+              // The component forwards its ref to this input element.
               ref={ref}
               type="text"
               value={searchTerm}
@@ -98,9 +103,14 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
               disabled={isLoading}
               autoComplete="off"
             />
-            <FiSearch size={20} className="pointer-events-none absolute inset-y-0 right-0 my-auto mr-4 text-white/70" />
+            <FiSearch
+              size={20}
+              onClick={handleSubmit}
+              className="absolute inset-y-0 right-0 my-auto mr-4 cursor-pointer text-white/70 transition-colors hover:text-white"
+            />
           </div>
           
+          {/* Show suggestions only when the input is focused and there are results. */}
           {isFocused && suggestions.length > 0 && (
             <ul className="absolute z-10 mt-2 w-full overflow-y-auto rounded-lg bg-white/50 shadow-lg backdrop-blur-md max-h-60">
               {suggestions.map((city, index) => {
@@ -110,6 +120,7 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
                     key={city.id}
                     onClick={() => handleSelectCity(city)}
                     onMouseEnter={() => setActiveIndex(index)}
+                    // Apply a different style for the currently active suggestion.
                     className={`cursor-pointer px-4 py-2 text-white transition-colors ${
                       isActive ? 'bg-white/30' : 'hover:bg-white/20'
                     }`}

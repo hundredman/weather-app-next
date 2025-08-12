@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Weather Forecast App
 
-## Getting Started
+A sleek and modern weather application built with Next.js and Tailwind CSS. Search for any city worldwide, get real-time weather data, and save your favorite locations for quick access.
 
-First, run the development server:
+## 📍 Live Demo
+
+[Link to your live application URL](https://www.google.com/search?q=https://your-weather-app-url.com)
+
+## 📸 Screenshot
+
+*(Suggestion: Add a screenshot of your running application here. You can name it `screenshot.png` and place it in the root of your project.)*
+
+-----
+
+## ✨ Features
+
+  * **City Search**: Dynamically search for cities worldwide.
+      * **Debounced Input**: API calls are only made after the user stops typing, improving performance.
+      * **Dynamic Language**: Automatically detects Korean input to provide search results in Korean.
+      * **Keyboard Navigation**: Use `ArrowUp` and `ArrowDown` keys to navigate suggestions and `Enter` to select.
+  * **Real-time Weather Data**:
+      * Current conditions (temperature, "feels like," humidity, wind speed).
+      * Dynamic weather icons and descriptions.
+      * Hourly temperature forecast chart.
+      * 7-day weekly forecast.
+  * **Dynamic UI**: The background gradient smoothly transitions to match the current weather conditions.
+  * **Geolocation**: Instantly get the weather for your current location with a single click.
+  * **Favorites System**:
+      * Add or remove cities from a persistent favorites list.
+      * Favorites are saved locally in the browser using `localStorage`.
+  * **Session Persistence**: The last searched city is automatically loaded when you revisit the app.
+  * **Accessibility**: Press `Enter` from anywhere on the page to immediately focus the search bar.
+
+## 🛠️ Tech Stack
+
+  * **Framework**: [Next.js](https://nextjs.org/) (with App Router)
+  * **Language**: [TypeScript](https://www.typescriptlang.org/)
+  * **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+  * **Icons**: [React Icons](https://react-icons.github.io/react-icons/)
+  * **Charting**: A chart library (e.g., [Recharts](https://recharts.org/) or [Chart.js](https://www.chartjs.org/)) for the hourly forecast.
+  * **APIs**:
+      * [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) for city search.
+      * [Open-Meteo Weather Forecast API](https://open-meteo.com/en/docs) for weather data.
+
+-----
+
+## 🚀 Getting Started
+
+Follow these instructions to set up and run the project locally.
+
+### Prerequisites
+
+  * Node.js (v18.x or later)
+  * npm, yarn, or pnpm
+
+### Installation
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/your-username/your-repo-name.git
+    ```
+
+2.  **Navigate to the project directory:**
+
+    ```bash
+    cd your-repo-name
+    ```
+
+3.  **Install dependencies:**
+
+    ```bash
+    npm install
+    # or
+    # yarn install
+    # or
+    # pnpm install
+    ```
+
+4.  **Environment Variables**
+    This project uses the Open-Meteo API, which does **not** require an API key. Therefore, no `.env.local` file is necessary to run the application.
+
+### Running the Development Server
+
+Start the development server with the following command:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) in your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📄 License
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
 
-## Learn More
+## 🙏 Acknowledgements
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A big thank you to [Open-Meteo](https://open-meteo.com/) for providing the free, high-quality weather and geocoding APIs that power this application.

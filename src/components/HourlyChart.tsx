@@ -29,15 +29,12 @@ export default function HourlyChart({ hourlyData }: HourlyChartProps) {
           >
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
             
-            {/* --- This section has been updated --- */}
             <XAxis
               dataKey="time"
               stroke="white"
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              // Add interval={2} property.
-              // Displays the 0th label, skips 2, and displays the 3rd label (i.e., 3-hour intervals).
               interval={2} 
             />
 
