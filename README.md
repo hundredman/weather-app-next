@@ -6,6 +6,10 @@ A sleek and modern weather application built with Next.js and Tailwind CSS. Sear
 
 ![App Screenshot](screenshots/app-screenshot.png)
 
+## 🚀 Live Demo
+
+[https://weather-app-next-gold.vercel.app/](https://weather-app-next-gold.vercel.app/)
+
 -----
 
 ## ✨ Features
