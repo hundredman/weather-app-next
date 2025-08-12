@@ -40,6 +40,53 @@ A sleek and modern weather application built with Next.js and Tailwind CSS. Sear
 
 -----
 
+## 📂 Project Structure
+
+```
+.
+├── .git/
+├── .next/
+├── node_modules/
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── screenshots/
+│   └── app-screenshot.png
+├── src/
+│   ├── app/
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── FavoriteButton.tsx
+│   │   ├── FavoritesBar.tsx
+│   │   ├── HourlyChart.tsx
+│   │   ├── SearchForm.tsx
+│   │   └── WeatherDisplay.tsx
+│   ├── hooks/
+│   │   └── useDebounce.ts
+│   ├── services/
+│   │   └── weatherService.ts
+│   ├── types/
+│   │   └── weather.ts
+│   └── utils/
+│       └── weatherUtils.ts
+├── .gitignore
+├── eslint.config.mjs
+├── LICENSE
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── README.md
+└── tsconfig.json
+```
+
+
 ## 🚀 Getting Started
 
 Follow these instructions to set up and run the project locally.
