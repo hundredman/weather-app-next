@@ -33,7 +33,7 @@ export const searchCities = async (query: string): Promise<GeoLocation[]> => {
 };
 
 
-// Fetches weather data for a given location (latitude and longitude).
+// Fetches weather data (temperature, wind, etc.).
 export const fetchWeather = async (lat: number, lon: number): Promise<WeatherData> => {
   const params = new URLSearchParams({
     latitude: String(lat),
@@ -53,5 +53,25 @@ export const fetchWeather = async (lat: number, lon: number): Promise<WeatherDat
   } catch (err) {
     console.error("fetchWeather Error:", err);
     throw new Error('An error occurred while fetching weather data.');
+  }
+};
+
+// Fetches air quality data.
+export const fetchAirQuality = async (lat: number, lon: number): Promise<any> => {
+  const params = new URLSearchParams({
+    latitude: String(lat),
+    longitude: String(lon),
+    current: 'european_aqi',
+  });
+
+  try {
+    const response = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch air quality data.');
+    }
+    return await response.json();
+  } catch (err) {
+    console.error("fetchAirQuality Error:", err);
+    throw new Error('An error occurred while fetching air quality data.');
   }
 };

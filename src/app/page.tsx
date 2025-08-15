@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { WeatherData, GeoLocation } from '@/types/weather';
-import { fetchWeather } from '@/services/weatherService';
+import { fetchWeather, fetchAirQuality } from '@/services/weatherService';
 import { getBackgroundColor } from '@/utils/weatherUtils';
 import SearchForm from '@/components/SearchForm';
 import FavoritesBar from '@/components/FavoritesBar';
@@ -10,28 +10,30 @@ import WeatherDisplay from '@/components/WeatherDisplay';
 
 const FAVORITES_KEY = 'weatherAppFavorites';
 
+/**
+ * The main page component for the Weather App.
+ * It manages all application state, handles data fetching,
+ * and assembles the UI components.
+ */
 export default function Home() {
-  // Core state for the application
+  // --- Core Application State ---
   const [selectedCity, setSelectedCity] = useState<GeoLocation | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   
-  // State for UI and local storage features
+  // --- UI and Local Storage State ---
   const [bgClass, setBgClass] = useState<string>('from-gray-400 to-gray-200');
   const [favorites, setFavorites] = useState<GeoLocation[]>([]);
-
-  // Ref to control the search input element directly.
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus search input on 'Enter' key press anywhere on the page.
+  // --- Side Effects (useEffect Hooks) ---
+
+  // Focuses the search input on 'Enter' key press for better accessibility.
   useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === 'Enter' &&
-        (event.target as HTMLElement).tagName !== 'INPUT' &&
-        (event.target as HTMLElement).tagName !== 'BUTTON'
-      ) {
+      const target = event.target as HTMLElement;
+      if (event.key === 'Enter' && target.tagName !== 'INPUT' && target.tagName !== 'BUTTON') {
         event.preventDefault();
         searchInputRef.current?.focus();
       }
@@ -40,118 +42,108 @@ export default function Home() {
     return () => document.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
-  // Load favorites from localStorage on initial component mount.
+  // Manages persistence of favorites to and from localStorage.
   useEffect(() => {
     try {
       const storedFavorites = localStorage.getItem(FAVORITES_KEY);
-      if (storedFavorites) {
-        setFavorites(JSON.parse(storedFavorites));
-      }
+      if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
     } catch (e) {
       console.error("Failed to parse favorites from localStorage", e);
     }
   }, []);
 
-  // Persist favorites to localStorage whenever they change.
   useEffect(() => {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
   }, [favorites]);
 
-  // Load the last searched city on initial mount to restore the previous session.
+  // Restores the last session by loading the last searched city.
   useEffect(() => {
     const lastSearchedCity = localStorage.getItem('lastCity');
     if (lastSearchedCity) {
       try {
         const city: GeoLocation = JSON.parse(lastSearchedCity);
-        handleCitySelect(city);
+        fetchAndSetWeather(city); // Use the refactored handler
       } catch (e) {
         console.error("Failed to parse last city from localStorage", e);
         setIsLoading(false);
       }
     } else {
-      // If no last city, stop the initial loading state.
-      setIsLoading(false);
+      setIsLoading(false); // Stop initial loading if there's no last city.
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // This effect should only run once on initial mount.
 
-  // Update the background gradient when weather data changes.
+  // Updates the background gradient whenever the weather data changes.
   useEffect(() => {
     if (weather) {
       setBgClass(getBackgroundColor(weather.current.weather_code));
     }
   }, [weather]);
 
-  // --- State Handlers ---
+  // --- Event Handlers and Logic ---
 
-  const isCityFavorite = (city: GeoLocation | null): boolean => {
-    if (!city) return false;
-    return favorites.some(fav => fav.id === city.id);
-  };
-
-  const handleToggleFavorite = () => {
-    if (!selectedCity) return;
-    setFavorites(prev => 
-      isCityFavorite(selectedCity)
-        ? prev.filter(fav => fav.id !== selectedCity.id)
-        : [...prev, selectedCity]
-    );
-  };
-
-  // Fetches and displays weather when a city is selected.
-  const handleCitySelect = async (city: GeoLocation) => {
+  // A refactored helper function to handle all weather/AQI fetching and state updates.
+  const fetchAndSetWeather = async (location: GeoLocation) => {
     setIsLoading(true);
     setError('');
     setWeather(null);
     try {
-      const weatherData = await fetchWeather(city.latitude, city.longitude);
-      setWeather(weatherData);
-      setSelectedCity(city);
-      // Don't save "Current Location" as the last searched city.
-      if (city.name !== 'Current Location') {
-        localStorage.setItem('lastCity', JSON.stringify(city));
+      const [weatherData, airQualityData] = await Promise.all([
+        fetchWeather(location.latitude, location.longitude),
+        fetchAirQuality(location.latitude, location.longitude),
+      ]);
+
+      const combinedData = {
+        ...weatherData,
+        current: { ...weatherData.current, european_aqi: airQualityData.current.european_aqi },
+      };
+
+      setWeather(combinedData);
+      setSelectedCity(location);
+
+      if (location.name !== 'Current Location') {
+        localStorage.setItem('lastCity', JSON.stringify(location));
       }
       searchInputRef.current?.blur();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred.');
-      }
+      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Gets the user's current location and fetches the weather.
+  const handleCitySelect = (city: GeoLocation) => {
+    fetchAndSetWeather(city);
+  };
+  
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by this browser.');
       return;
     }
-    
-    setIsLoading(true);
-    setError('');
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
+      (position) => {
         const { latitude, longitude } = position.coords;
-        try {
-          const weatherData = await fetchWeather(latitude, longitude);
-          setWeather(weatherData);
-          setSelectedCity({ id: Date.now(), name: 'Current Location', country: '', latitude, longitude });
-        } catch (err: unknown) {
-           if (err instanceof Error) {
-             setError(err.message);
-           } else {
-             setError('An unknown error occurred.');
-           }
-        } finally {
-          setIsLoading(false);
-        }
+        const currentLocation: GeoLocation = { id: Date.now(), name: 'Current Location', country: '', latitude, longitude };
+        fetchAndSetWeather(currentLocation);
       },
       () => {
         setError('Failed to get location. Please check your browser settings.');
         setIsLoading(false);
       }
+    );
+  };
+  
+  const isCityFavorite = (city: GeoLocation | null): boolean => {
+    return !!city && favorites.some(fav => fav.id === city.id);
+  };
+
+  const handleToggleFavorite = () => {
+    if (!selectedCity) return;
+    setFavorites(prev =>
+      isCityFavorite(selectedCity)
+        ? prev.filter(fav => fav.id !== selectedCity.id)
+        : [...prev, selectedCity]
     );
   };
 
@@ -171,17 +163,15 @@ export default function Home() {
         <FavoritesBar favorites={favorites} onSelect={handleCitySelect} isLoading={isLoading} />
       </div>
       
-      {/* Display loading indicator */}
+      {/* Conditional UI Rendering */}
       {isLoading && <p className="text-white/80">Loading weather data...</p>}
       
-      {/* Display error message */}
       {error && (
         <div className="rounded-lg bg-red-500/50 p-4 text-center text-white">
           <p>{error}</p>
         </div>
       )}
 
-      {/* Display weather information when data is available */}
       {weather && selectedCity && !isLoading && (
         <WeatherDisplay 
           city={selectedCity.name} 
@@ -191,7 +181,6 @@ export default function Home() {
         />
       )}
 
-      {/* Display initial prompt message */}
       {!weather && !isLoading && !error && (
         <div className="text-center text-white/80">
           <p>Search for a city or use your current location to get the weather forecast.</p>

@@ -27,6 +27,7 @@ export interface WeatherData {
     apparent_temperature: number; // "Feels like"
     is_day: number; // 1 for day, 0 for night
     wind_speed_10m: number;
+    european_aqi: number;
   };
   hourly: {
     time: string[];

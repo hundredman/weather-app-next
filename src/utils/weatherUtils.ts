@@ -35,3 +35,13 @@ export const getBackgroundColor = (code: number): string => {
     if (code >= 45 && code <= 48) return 'from-gray-400 to-gray-300'; // Fog
     return 'from-gray-400 to-gray-200';
 }
+
+// Maps numerical AQI values to qualitative air quality descriptions
+export const getAqiInfo = (aqi: number): string => {
+  if (aqi <= 20) return 'Good';
+  if (aqi <= 40) return 'Fair';
+  if (aqi <= 60) return 'Moderate';
+  if (aqi <= 80) return 'Poor';
+  if (aqi <= 100) return 'Very Poor';
+  return 'Extremely Poor';
+};
