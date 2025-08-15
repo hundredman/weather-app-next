@@ -57,7 +57,7 @@ export const fetchWeather = async (lat: number, lon: number): Promise<WeatherDat
 };
 
 // Fetches air quality data.
-export const fetchAirQuality = async (lat: number, lon: number): Promise<any> => {
+export const fetchAirQuality = async (lat: number, lon: number): Promise<AirQualityData> => {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
