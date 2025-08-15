@@ -40,3 +40,9 @@ export interface WeatherData {
     temperature_2m_min: number[];
   };
 }
+
+export interface AirQualityData {
+  current: {
+    european_aqi: number;
+  };
+}

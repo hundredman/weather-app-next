@@ -1,4 +1,4 @@
-import type { WeatherData, GeoLocation } from '@/types/weather';
+import type { WeatherData, GeoLocation, AirQualityData } from '@/types/weather';
 
 interface GeocodingApiResponse {
   results?: GeoLocation[];

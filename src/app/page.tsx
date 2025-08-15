@@ -70,7 +70,6 @@ export default function Home() {
     } else {
       setIsLoading(false); // Stop initial loading if there's no last city.
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // This effect should only run once on initial mount.
 
   // Updates the background gradient whenever the weather data changes.
