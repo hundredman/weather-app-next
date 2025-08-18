@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTheme } from 'next-themes';
 import type { WeatherData, GeoLocation } from '@/types/weather';
 import { fetchWeather, fetchAirQuality } from '@/services/weatherService';
 import { getBackgroundColor } from '@/utils/weatherUtils';
 import SearchForm from '@/components/SearchForm';
 import FavoritesBar from '@/components/FavoritesBar';
 import WeatherDisplay from '@/components/WeatherDisplay';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const FAVORITES_KEY = 'weatherAppFavorites';
 
@@ -17,6 +19,7 @@ const FAVORITES_KEY = 'weatherAppFavorites';
  */
 export default function Home() {
   // --- Core Application State ---
+  const { resolvedTheme } = useTheme();
   const [selectedCity, setSelectedCity] = useState<GeoLocation | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -75,9 +78,13 @@ export default function Home() {
   // Updates the background gradient whenever the weather data changes.
   useEffect(() => {
     if (weather) {
-      setBgClass(getBackgroundColor(weather.current.weather_code));
+      const code = weather.current.weather_code;
+      const isDay = weather.current.is_day === 1;
+      const isDarkMode = resolvedTheme === 'dark';
+
+      setBgClass(getBackgroundColor(code, isDay, isDarkMode));
     }
-  }, [weather]);
+  }, [weather, resolvedTheme]);
 
   // --- Event Handlers and Logic ---
 
@@ -148,9 +155,12 @@ export default function Home() {
 
   return (
     <main className={`flex min-h-screen flex-col items-center gap-8 p-6 transition-all duration-500 sm:p-12 bg-gradient-to-br ${bgClass}`}>
-      <h1 className="text-3xl font-bold text-white text-shadow-md sm:text-4xl">
-        Weather App
-      </h1>
+      <div className="flex items-center gap-4">
+        <h1 className="text-3xl font-bold text-white text-shadow-md sm:text-4xl">
+          Weather App
+        </h1>
+        <ThemeToggle />
+      </div>
       
       <div className="w-full max-w-md space-y-4">
         <SearchForm 
