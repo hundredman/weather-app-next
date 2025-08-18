@@ -11,6 +11,7 @@ import WeatherDisplay from '@/components/WeatherDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const FAVORITES_KEY = 'weatherAppFavorites';
+const INITIAL_BG = 'from-gray-400 to-gray-200';
 
 /**
  * The main page component for the Weather App.
@@ -27,7 +28,8 @@ export default function Home() {
   const [localTime, setLocalTime] = useState<Date | null>(null);
   
   // --- UI and Local Storage State ---
-  const [bgClass, setBgClass] = useState<string>('from-gray-400 to-gray-200');
+  const [bgClasses, setBgClasses] = useState([INITIAL_BG, INITIAL_BG]);
+  const [activeBgIndex, setActiveBgIndex] = useState(0);
   const [favorites, setFavorites] = useState<GeoLocation[]>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,14 +78,26 @@ export default function Home() {
     }
   }, []); // This effect should only run once on initial mount.
 
-  // Updates the background gradient whenever the weather data changes.
+  // Update the background gradient when weather or theme changes.
   useEffect(() => {
     if (weather) {
       const code = weather.current.weather_code;
       const isDay = weather.current.is_day === 1;
       const isDarkMode = resolvedTheme === 'dark';
+      
+      const newBgClass = getBackgroundColor(code, isDay, isDarkMode);
+      const currentBgClass = bgClasses[activeBgIndex];
 
-      setBgClass(getBackgroundColor(code, isDay, isDarkMode));
+      if (newBgClass !== currentBgClass) {
+        // 현재 보이지 않는 레이어의 배경 클래스를 새 배경으로 업데이트합니다.
+        const nextBgIndex = (activeBgIndex + 1) % 2;
+        const newBgClasses = [...bgClasses];
+        newBgClasses[nextBgIndex] = newBgClass;
+        
+        setBgClasses(newBgClasses);
+        // 활성 레이어를 바꿔치기하여 크로스페이드 효과를 트리거합니다.
+        setActiveBgIndex(nextBgIndex);
+      }
     }
   }, [weather, resolvedTheme]);
 
@@ -168,7 +182,20 @@ export default function Home() {
   };
 
   return (
-    <main className={`flex min-h-screen flex-col items-center gap-8 p-6 transition-all duration-500 sm:p-12 bg-gradient-to-br ${bgClass}`}>
+    <main className="relative z-0 flex min-h-screen flex-col items-center gap-8 p-6 sm:p-12">
+      <div className="fixed inset-0 -z-10">
+        <div
+          className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-1000 ${
+            activeBgIndex === 0 ? 'opacity-100' : 'opacity-0'
+          } ${bgClasses[0]}`}
+        />
+        <div
+          className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-1000 ${
+            activeBgIndex === 1 ? 'opacity-100' : 'opacity-0'
+          } ${bgClasses[1]}`}
+        />
+      </div>
+
       <div className="flex items-center gap-4">
         <h1 className="text-3xl font-bold text-white text-shadow-md sm:text-4xl">
           Weather App
