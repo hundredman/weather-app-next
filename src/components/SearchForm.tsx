@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, KeyboardEvent, forwardRef, MouseEvent } from 'react';
+import { useState, useEffect, useRef, KeyboardEvent, forwardRef, MouseEvent, memo } from 'react';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
 import { useDebounce } from '@/hooks/useDebounce';
 import { searchCities } from '@/services/weatherService';
@@ -12,7 +12,7 @@ interface SearchFormProps {
   isLoading: boolean;
 }
 
-const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
+const SearchForm = memo(forwardRef<HTMLInputElement, SearchFormProps>(
   ({ onCitySelect, onGetLocation, isLoading }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [suggestions, setSuggestions] = useState<GeoLocation[]>([]);
@@ -144,7 +144,7 @@ const SearchForm = forwardRef<HTMLInputElement, SearchFormProps>(
       </form>
     );
   }
-);
+));
 
 SearchForm.displayName = "SearchForm";
 export default SearchForm;

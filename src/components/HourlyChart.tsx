@@ -1,31 +1,34 @@
 'use client';
 
-import { WeatherData } from "@/types/weather";
+import { useMemo, memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import type { WeatherData } from '@/types/weather';
 
 interface HourlyChartProps {
   hourlyData: WeatherData['hourly'];
 }
 
-export default function HourlyChart({ hourlyData }: HourlyChartProps) {
-  const chartData = hourlyData.time.slice(0, 24).map((time, index) => ({
-    time: new Date(time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
-    temp: Math.round(hourlyData.temperature_2m[index]),
-  }));
+/**
+ * A memoized component to display the 24-hour forecast in a line chart.
+ * This component has a fixed design and does not react to theme changes.
+ */
+const HourlyChart = memo(function HourlyChart({ hourlyData }: HourlyChartProps) {
+  const chartData = useMemo(() => {
+    return hourlyData.time.slice(0, 24).map((time, index) => ({
+      time: new Date(time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+      temp: Math.round(hourlyData.temperature_2m[index]),
+    }));
+  }, [hourlyData]);
 
   return (
     <div className="mt-8 rounded-2xl bg-white/20 p-6 shadow-lg backdrop-blur-md">
       <h3 className="mb-4 text-lg font-bold text-white">Hourly Forecast</h3>
+      
       <div style={{ width: '100%', height: 200 }}>
         <ResponsiveContainer>
           <LineChart
             data={chartData}
-            margin={{
-              top: 5,
-              right: 20,
-              left: -10,
-              bottom: 5,
-            }}
+            margin={{ top: 5, right: 20, left: -10, bottom: 5, }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
             
@@ -38,7 +41,14 @@ export default function HourlyChart({ hourlyData }: HourlyChartProps) {
               interval={2} 
             />
 
-            <YAxis stroke="white" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+            <YAxis
+              stroke="white"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              domain={['dataMin - 2', 'dataMax + 2']}
+              tickFormatter={(value) => `${value}°`}
+            />
             
             <Tooltip
               contentStyle={{
@@ -51,10 +61,21 @@ export default function HourlyChart({ hourlyData }: HourlyChartProps) {
               formatter={(value) => [`${value}°C`, 'Temp']}
             />
             
-            <Line type="monotone" dataKey="temp" stroke="#facc15" strokeWidth={2} dot={{ r: 3, fill: '#facc15' }} />
+            <Line
+              type="monotone"
+              dataKey="temp"
+              stroke="#facc15"
+              strokeWidth={2}
+              dot={{ r: 3, fill: '#facc15' }}
+              activeDot={{ r: 6 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
     </div>
   );
-}
+});
+
+HourlyChart.displayName = 'HourlyChart';
+
+export default HourlyChart;

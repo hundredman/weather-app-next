@@ -24,6 +24,7 @@ export default function Home() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [localTime, setLocalTime] = useState<Date | null>(null);
   
   // --- UI and Local Storage State ---
   const [bgClass, setBgClass] = useState<string>('from-gray-400 to-gray-200');
@@ -86,6 +87,17 @@ export default function Home() {
     }
   }, [weather, resolvedTheme]);
 
+  // Updates the displayed local time every second when timezone is available.
+  useEffect(() => {
+    if (!weather?.timezone) return;
+
+    const intervalId = setInterval(() => {
+      setLocalTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [weather?.timezone]);
+
   // --- Event Handlers and Logic ---
 
   // A refactored helper function to handle all weather/AQI fetching and state updates.
@@ -93,6 +105,7 @@ export default function Home() {
     setIsLoading(true);
     setError('');
     setWeather(null);
+    setLocalTime(null);
     try {
       const [weatherData, airQualityData] = await Promise.all([
         fetchWeather(location.latitude, location.longitude),
@@ -106,6 +119,7 @@ export default function Home() {
 
       setWeather(combinedData);
       setSelectedCity(location);
+      setLocalTime(new Date());
 
       if (location.name !== 'Current Location') {
         localStorage.setItem('lastCity', JSON.stringify(location));
@@ -187,6 +201,7 @@ export default function Home() {
           weather={weather}
           isFavorite={isCityFavorite(selectedCity)}
           onToggleFavorite={handleToggleFavorite}
+          localTime={localTime}
         />
       )}
 

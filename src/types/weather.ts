@@ -19,6 +19,7 @@ export interface GeocodingApiResponse {
 export interface WeatherData {
   latitude: number;
   longitude: number;
+  timezone: string;
   current: {
     time: string;
     temperature_2m: number;

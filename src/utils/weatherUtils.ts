@@ -25,12 +25,11 @@ export const getWeatherInfo = (code: number, isDay: boolean = true): { icon: Ico
   }
 };
 
-// Returns a dynamic background class based on the weather condition
 /**
- * Returns a dynamic background gradient class based on weather, time of day, and theme.
- * @param code - The WMO weather code.
- * @param isDay - A boolean indicating if it's daytime (true) or nighttime (false).
- * @param isDarkMode - A boolean indicating if dark mode is active.
+ * Returns a dynamic background gradient class based on weather, time of day (day/night), and theme.
+ * @param code The WMO weather code.
+ * @param isDay A boolean indicating if it's daytime (true) or nighttime (false).
+ * @param isDarkMode A boolean indicating if dark mode is active.
  * @returns A string of Tailwind CSS gradient classes.
  */
 export const getBackgroundColor = (code: number, isDay: boolean, isDarkMode: boolean): string => {
@@ -38,25 +37,17 @@ export const getBackgroundColor = (code: number, isDay: boolean, isDarkMode: boo
     // --- DARK MODE GRADIENTS ---
     // In dark mode, we use a more subdued, darker palette.
     switch (code) {
-      case 0: // Clear
-        return 'from-slate-900 to-blue-950'; // Deep night sky
-      case 1: case 2: case 3: // Cloudy
-        return 'from-slate-800 to-slate-700';
-      case 45: case 48: // Fog
-        return 'from-slate-700 to-gray-800';
-      case 61: case 63: case 65: // Rain
-      case 80: case 81: case 82:
-        return 'from-slate-900 to-gray-900'; // Stormy night
-      case 71: case 73: case 75: // Snow
-        return 'from-slate-700 to-slate-600';
-      case 95: case 96: case 99: // Thunderstorm
-        return 'from-gray-950 to-black';
-      default:
-        return 'from-slate-900 to-slate-800';
+      case 0: return 'from-slate-900 to-blue-950'; // Deep night sky
+      case 1: case 2: case 3: return 'from-slate-800 to-slate-700';
+      case 45: case 48: return 'from-slate-700 to-gray-800';
+      case 61: case 63: case 65: case 80: case 81: case 82: return 'from-slate-900 to-gray-900'; // Stormy night
+      case 71: case 73: case 75: return 'from-slate-700 to-slate-600';
+      case 95: case 96: case 99: return 'from-gray-950 to-black';
+      default: return 'from-slate-900 to-slate-800';
     }
   } else {
     // --- LIGHT MODE GRADIENTS ---
-    // In light mode, we use vibrant colors that differ between day and night.
+    // In light mode, colors differ between day and night.
     if (isDay) {
       // Daytime Light Mode
       switch (code) {
@@ -69,7 +60,7 @@ export const getBackgroundColor = (code: number, isDay: boolean, isDarkMode: boo
         default: return 'from-sky-400 to-gray-500';
       }
     } else {
-      // Nighttime Light Mode (still part of the light theme, but with night colors)
+      // Nighttime Light Mode
       switch (code) {
         case 0: return 'from-indigo-800 to-slate-900'; // Clear night
         case 1: case 2: case 3: return 'from-indigo-700 to-slate-800';

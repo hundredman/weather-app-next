@@ -1,3 +1,6 @@
+'use client';
+
+import { memo } from 'react';
 import { GeoLocation } from "@/types/weather";
 
 interface FavoritesBarProps {
@@ -6,7 +9,7 @@ interface FavoritesBarProps {
   isLoading: boolean;
 }
 
-export default function FavoritesBar({ favorites, onSelect, isLoading }: FavoritesBarProps) {
+const FavoritesBar = memo(function FavoritesBar({ favorites, onSelect, isLoading }: FavoritesBarProps) {
   if (favorites.length === 0) {
     return null;
   }
@@ -18,11 +21,15 @@ export default function FavoritesBar({ favorites, onSelect, isLoading }: Favorit
           key={city.id}
           onClick={() => onSelect(city)}
           disabled={isLoading}
-          className="rounded-full bg-white/20 px-4 py-1.5 text-sm text-white shadow-md backdrop-blur-sm hover:bg-white/30 disabled:bg-white/10"
+          className="rounded-full bg-white/20 px-4 py-1.5 text-sm text-white shadow-md backdrop-blur-sm hover:bg-white/30 disabled:bg-white/10 dark:bg-slate-700/50 dark:hover:bg-slate-600/50 dark:disabled:bg-slate-800/50"
         >
           {city.name}
         </button>
       ))}
     </div>
   );
-}
+});
+
+FavoritesBar.displayName = 'FavoritesBar';
+
+export default FavoritesBar;

@@ -9,6 +9,7 @@ interface WeatherDisplayProps {
   weather: WeatherData;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  localTime: Date | null;
 }
 
 /**
@@ -16,7 +17,7 @@ interface WeatherDisplayProps {
  * It's composed of three sections: current conditions, an hourly forecast chart,
  * and a 7-day weekly forecast.
  */
-export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavorite }: WeatherDisplayProps) {
+export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavorite, localTime }: WeatherDisplayProps) {
   // Prepare all necessary data for rendering before the return statement.
   // This keeps the JSX clean and focused on presentation.
   const isDay = weather.current.is_day === 1;
@@ -33,6 +34,16 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
           {/* City and weather description */}
           <div>
             <h2 className="text-3xl font-bold capitalize sm:text-4xl">{city}</h2>
+            {localTime && (
+              <p className="text-lg font-light text-white/80">
+                {localTime.toLocaleTimeString('en-US', {
+                  timeZone: weather.timezone,
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+              </p>
+            )}
             <p className="text-lg">{description}</p>
           </div>
           {/* Main temperature display */}
