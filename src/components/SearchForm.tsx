@@ -20,7 +20,7 @@ const SearchForm = memo(forwardRef<HTMLInputElement, SearchFormProps>(
     const [activeIndex, setActiveIndex] = useState<number>(-1);
 
     // Debounce search term to avoid firing API calls on every keystroke.
-    const debouncedSearchTerm = useDebounce(searchTerm, 100);
+    const debouncedSearchTerm = useDebounce(searchTerm, 0);
     // Ref for the main search container, used to detect clicks outside.
     const searchContainerRef = useRef<HTMLDivElement>(null);
 
