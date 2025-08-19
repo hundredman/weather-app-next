@@ -32,7 +32,6 @@ export const searchCities = async (query: string): Promise<GeoLocation[]> => {
   }
 };
 
-
 // Fetches weather data (temperature, wind, etc.).
 export const fetchWeather = async (lat: number, lon: number, unit: 'celsius' | 'fahrenheit'): Promise<WeatherData> => {
   const params = new URLSearchParams({
