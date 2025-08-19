@@ -7,22 +7,27 @@ import { useUnits } from '@/context/UnitsContext';
 
 interface HourlyChartProps {
   hourlyData: WeatherData['hourly'];
+  timezone: string;
 }
 
 /**
  * A memoized component to display the 24-hour forecast in a line chart.
  * It now reflects the user's selected temperature unit (°C/°F).
  */
-const HourlyChart = memo(function HourlyChart({ hourlyData }: HourlyChartProps) {
+const HourlyChart = memo(function HourlyChart({ hourlyData, timezone }: HourlyChartProps) {
   const { unit } = useUnits();
   const unitSymbol = unit === 'celsius' ? 'C' : 'F';
 
   const chartData = useMemo(() => {
     return hourlyData.time.slice(0, 24).map((time, index) => ({
-      time: new Date(time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+      time: new Date(time).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        hour12: true,
+        timeZone: timezone,
+      }),
       temp: Math.round(hourlyData.temperature_2m[index]),
     }));
-  }, [hourlyData]);
+  }, [hourlyData, timezone]);
 
   return (
     <div className="mt-8 rounded-2xl bg-white/20 p-6 shadow-lg backdrop-blur-md">

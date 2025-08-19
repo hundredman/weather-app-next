@@ -97,7 +97,10 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
       </div>
 
       {/* Section: Hourly Forecast Chart */}
-      <HourlyChart hourlyData={weather.hourly} />
+      <HourlyChart 
+        hourlyData={weather.hourly}
+        timezone={weather.timezone} 
+      />
       
       {/* Section: 7-Day Weekly Forecast */}
       <div className="mt-8 rounded-2xl bg-white/20 p-6 shadow-lg backdrop-blur-md">
