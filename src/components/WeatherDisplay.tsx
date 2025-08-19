@@ -1,3 +1,5 @@
+import UnitToggle from './UnitToggle';
+import { useUnits } from '@/context/UnitsContext';
 import { WeatherData } from "@/types/weather";
 import { getWeatherInfo, getAqiInfo } from "@/utils/weatherUtils";
 import { FiWind, FiDroplet, FiSmile, FiFeather } from 'react-icons/fi';
@@ -20,6 +22,8 @@ interface WeatherDisplayProps {
 export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavorite, localTime }: WeatherDisplayProps) {
   // Prepare all necessary data for rendering before the return statement.
   // This keeps the JSX clean and focused on presentation.
+  const { unit } = useUnits();
+  const unitSymbol = unit === 'celsius' ? '°C' : '°F';
   const isDay = weather.current.is_day === 1;
   const { icon: WeatherIcon, description } = getWeatherInfo(weather.current.weather_code, isDay);
   const aqiText = getAqiInfo(weather.current.european_aqi);
@@ -49,8 +53,12 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
           {/* Main temperature display */}
           <div className="flex items-center gap-4 text-center">
             <WeatherIcon size={100} />
-            <div>
-              <p className="text-6xl font-bold">{Math.round(weather.current.temperature_2m)}°</p>
+            <div className="flex items-start">
+              <p className="text-6xl font-bold">{Math.round(weather.current.temperature_2m)}</p>
+              <span className="mt-2 text-2xl font-medium">{unitSymbol}</span>
+            </div>
+            <div className="absolute bottom-4 right-4">
+              <UnitToggle />
             </div>
           </div>
         </div>
@@ -61,7 +69,7 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
             <FiSmile size={20} />
             <div>
               <p className="text-white/80">Feels like</p>
-              <p className="font-bold">{Math.round(weather.current.apparent_temperature)}°</p>
+              <p className="font-bold">{Math.round(weather.current.apparent_temperature)}{unitSymbol}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -113,7 +121,7 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
                 <p className="w-1/4 text-center">{dayWeather.description}</p>
                 {/* Min and max temperatures for the day */}
                 <p className="w-1/4 text-right font-semibold">
-                  {Math.round(weather.daily.temperature_2m_min[index])}° / {Math.round(weather.daily.temperature_2m_max[index])}°
+                  {Math.round(weather.daily.temperature_2m_min[index])}{unitSymbol} / {Math.round(weather.daily.temperature_2m_max[index])}{unitSymbol}
                 </p>
               </li>
             );

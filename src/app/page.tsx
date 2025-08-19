@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from 'next-themes';
+import { useUnits } from '@/context/UnitsContext';
 import type { WeatherData, GeoLocation } from '@/types/weather';
 import { fetchWeather, fetchAirQuality } from '@/services/weatherService';
 import { getBackgroundColor } from '@/utils/weatherUtils';
@@ -21,6 +22,7 @@ const INITIAL_BG = 'from-gray-400 to-gray-200';
 export default function Home() {
   // --- Core Application State ---
   const { resolvedTheme } = useTheme();
+  const { unit } = useUnits();
   const [selectedCity, setSelectedCity] = useState<GeoLocation | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -89,13 +91,11 @@ export default function Home() {
       const currentBgClass = bgClasses[activeBgIndex];
 
       if (newBgClass !== currentBgClass) {
-        // 현재 보이지 않는 레이어의 배경 클래스를 새 배경으로 업데이트합니다.
         const nextBgIndex = (activeBgIndex + 1) % 2;
         const newBgClasses = [...bgClasses];
         newBgClasses[nextBgIndex] = newBgClass;
         
         setBgClasses(newBgClasses);
-        // 활성 레이어를 바꿔치기하여 크로스페이드 효과를 트리거합니다.
         setActiveBgIndex(nextBgIndex);
       }
     }
@@ -115,14 +115,14 @@ export default function Home() {
   // --- Event Handlers and Logic ---
 
   // A refactored helper function to handle all weather/AQI fetching and state updates.
-  const fetchAndSetWeather = async (location: GeoLocation) => {
+  const fetchAndSetWeather = useCallback(async (location: GeoLocation) => {
     setIsLoading(true);
     setError('');
     setWeather(null);
     setLocalTime(null);
     try {
       const [weatherData, airQualityData] = await Promise.all([
-        fetchWeather(location.latitude, location.longitude),
+        fetchWeather(location.latitude, location.longitude, unit),
         fetchAirQuality(location.latitude, location.longitude),
       ]);
 
@@ -144,13 +144,13 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+   }, [unit]);
 
-  const handleCitySelect = (city: GeoLocation) => {
+  const handleCitySelect = useCallback((city: GeoLocation) => {
     fetchAndSetWeather(city);
-  };
+  }, [fetchAndSetWeather]);
   
-  const handleGetLocation = () => {
+  const handleGetLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by this browser.');
       return;
@@ -166,7 +166,7 @@ export default function Home() {
         setIsLoading(false);
       }
     );
-  };
+  }, [fetchAndSetWeather]);
   
   const isCityFavorite = (city: GeoLocation | null): boolean => {
     return !!city && favorites.some(fav => fav.id === city.id);
@@ -180,6 +180,12 @@ export default function Home() {
         : [...prev, selectedCity]
     );
   };
+
+  useEffect(() => {
+    if (selectedCity) {
+      fetchAndSetWeather(selectedCity);
+    }
+  }, [unit, selectedCity, fetchAndSetWeather]);
 
   return (
     <main className="relative z-0 flex min-h-screen flex-col items-center gap-8 p-6 sm:p-12">

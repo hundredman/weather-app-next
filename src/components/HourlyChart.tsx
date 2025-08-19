@@ -3,6 +3,7 @@
 import { useMemo, memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import type { WeatherData } from '@/types/weather';
+import { useUnits } from '@/context/UnitsContext';
 
 interface HourlyChartProps {
   hourlyData: WeatherData['hourly'];
@@ -10,9 +11,12 @@ interface HourlyChartProps {
 
 /**
  * A memoized component to display the 24-hour forecast in a line chart.
- * This component has a fixed design and does not react to theme changes.
+ * It now reflects the user's selected temperature unit (°C/°F).
  */
 const HourlyChart = memo(function HourlyChart({ hourlyData }: HourlyChartProps) {
+  const { unit } = useUnits();
+  const unitSymbol = unit === 'celsius' ? 'C' : 'F';
+
   const chartData = useMemo(() => {
     return hourlyData.time.slice(0, 24).map((time, index) => ({
       time: new Date(time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
@@ -58,7 +62,7 @@ const HourlyChart = memo(function HourlyChart({ hourlyData }: HourlyChartProps) 
                 color: 'white',
               }}
               labelStyle={{ fontWeight: 'bold' }}
-              formatter={(value) => [`${value}°C`, 'Temp']}
+              formatter={(value) => [`${value}°${unitSymbol}`, 'Temp']}
             />
             
             <Line
