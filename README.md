@@ -20,7 +20,8 @@ A sleek and modern weather application built with Next.js and Tailwind CSS. Sear
       * **Keyboard Navigation**: Use `ArrowUp` and `ArrowDown` keys to navigate suggestions and `Enter` to select.
   * **Real-time Weather Data**:
       * Current conditions (temperature, "feels like," humidity, wind speed, and air quality).
-      * Dynamic weather icons and descriptions.
+      * Dynamic weather icons and descriptions based on WMO codes.
+      * Live local clock for the selected city.
       * Hourly temperature forecast chart.
       * 7-day weekly forecast.
   * **Dynamic & Personalized UI**:
@@ -31,15 +32,15 @@ A sleek and modern weather application built with Next.js and Tailwind CSS. Sear
   * **Favorites System**:
       * Add or remove cities from a persistent favorites list.
       * Favorites are saved locally in the browser using `localStorage`.
-  * **Session Persistence**: The last searched city is automatically loaded when you revisit the app.
-  * **Accessibility**: Press `Enter` from anywhere on the page to immediately focus the search bar.
+  * **Session Persistence**: The last searched city and selected unit are automatically loaded when you revisit the app.
+  * **Performance Optimization**: Utilizes `React.memo` and `useCallback` extensively to prevent unnecessary re-renders, ensuring a smooth and responsive UI.
 
 ## 🛠️ Tech Stack
 
   * **Framework**: [Next.js](https://nextjs.org/) (with App Router)
   * **Language**: [TypeScript](https://www.typescriptlang.org/)
   * **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-  * **State Management**: [React Context API](https://react.dev/learn/passing-data-deeply-with-context) for global state (Theme, Units).
+  * **State Management**: [React Context API](https://react.dev/learn/passing-data-deeply-with-context) with the `useReducer` hook for predictable and centralized state management.
   * **Theming**: [next-themes](https://github.com/pacocoursey/next-themes) for elegant dark mode handling.
   * **Icons**: [React Icons](https://react-icons.github.io/react-icons/)
   * **Charting**: [Recharts](https://recharts.org/) for the hourly forecast.
@@ -51,30 +52,37 @@ A sleek and modern weather application built with Next.js and Tailwind CSS. Sear
 ## 📂 Project Structure
 
 ```
-src/
-├── app/
-│   ├── globals.css                 # Global CSS and Tailwind directives
-│   └── layout.tsx                  # Root layout with context providers
-│   └── page.tsx                    # Main page component and application logic
-├── components/
-│   ├── FavoriteButton.tsx          # Button to add/remove favorites
-│   ├── FavoritesBar.tsx            # Displays saved favorite locations
-│   ├── HourlyChart.tsx             # Chart for hourly temperature forecast
-│   ├── SearchForm.tsx              # City search input form
-│   ├── ThemeProvider.tsx           # Provider for next-themes
-│   ├── ThemeToggle.tsx             # UI button to toggle light/dark mode
-│   ├── UnitToggle.tsx              # UI button to toggle C°/F°
-│   └── WeatherDisplay.tsx          # Displays all weather conditions
-├── context/
-│   └── UnitsContext.tsx            # Context for managing temperature units
-├── hooks/
-│   └── useDebounce.ts              # Custom hook for debouncing input
-├── services/
-│   └── weatherService.ts           # Handles all external API calls
-├── types/
-│   └── weather.ts                  # TypeScript type definitions
-└── utils/
-    └── weatherUtils.ts             # Helper functions for data processing
+.
+├── src/
+│   ├── app/
+│   │   ├── globals.css         # Global styles and Tailwind directives
+│   │   ├── layout.tsx          # Root layout with all context providers
+│   │   └── page.tsx            # Main page component (Layout & Background control)
+│   ├── components/
+│   │   ├── ContentDisplay.tsx  # Handles conditional rendering (Loading/Error/Data)
+│   │   ├── FavoriteButton.tsx  # Button to add/remove favorites
+│   │   ├── FavoritesBar.tsx    # Displays saved favorite locations
+│   │   ├── HourlyChart.tsx     # Chart for hourly forecast
+│   │   ├── SearchForm.tsx      # City search input form
+│   │   ├── SearchSection.tsx   # Wrapper for SearchForm and FavoritesBar
+│   │   ├── ThemeProvider.tsx   # Provider for next-themes
+│   │   ├── ThemeToggle.tsx     # UI button to toggle light/dark mode
+│   │   ├── UnitToggle.tsx      # UI button to toggle C°/F°
+│   │   └── WeatherDisplay.tsx  # Presentational component for all weather conditions
+│   ├── constants/
+│   │   └── index.ts            # Stores constant values (API keys, strings)
+│   ├── context/
+│   │   ├── UnitsContext.tsx    # Context for managing temperature units
+│   │   └── WeatherContext.tsx  # Context for managing all weather application state
+│   ├── hooks/
+│   │   └── useDebounce.ts      # Custom hook for debouncing input
+│   ├── services/
+│   │   └── weatherService.ts   # Handles all external API calls
+│   ├── types/
+│   │   └── weather.ts          # TypeScript type definitions for all data structures
+│   └── utils/
+│       └── weatherUtils.ts     # Helper functions for data processing
+└── ... (Configuration files)
 ```
 
 ## 🚀 Getting Started
