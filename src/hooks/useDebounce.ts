@@ -1,3 +1,5 @@
+// hooks/useDebounce.ts
+
 import { useState, useEffect } from 'react';
 
 // Delays updating a value until a specified amount of time has passed.

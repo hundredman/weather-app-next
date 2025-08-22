@@ -1,3 +1,11 @@
+// types/weather.ts
+
+import { UNITS } from '@/constants';
+
+// --- General Purpose Types ---
+
+export type Unit = typeof UNITS[keyof typeof UNITS];
+
 // --- Geocoding API Types (for city search) ---
 
 export interface GeoLocation {
@@ -13,10 +21,15 @@ export interface GeocodingApiResponse {
   results?: GeoLocation[];
 }
 
+// --- Weather & Air Quality API Types (Open-Meteo) ---
 
-// --- Weather API Types (Open-Meteo) ---
+export interface AirQualityData {
+  current: {
+    european_aqi: number;
+  };
+}
 
-export interface WeatherData {
+export interface WeatherApiResponse {
   latitude: number;
   longitude: number;
   timezone: string;
@@ -28,7 +41,6 @@ export interface WeatherData {
     apparent_temperature: number; // "Feels like"
     is_day: number; // 1 for day, 0 for night
     wind_speed_10m: number;
-    european_aqi: number;
   };
   hourly: {
     time: string[];
@@ -42,8 +54,8 @@ export interface WeatherData {
   };
 }
 
-export interface AirQualityData {
+export type WeatherData = WeatherApiResponse & {
   current: {
     european_aqi: number;
   };
-}
+};

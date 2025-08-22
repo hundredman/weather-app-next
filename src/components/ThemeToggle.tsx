@@ -1,9 +1,12 @@
+// components/ThemeToggle.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { FiSun, FiMoon } from 'react-icons/fi';
 
+// ThemeToggle component to switch between light and dark themes
 export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();

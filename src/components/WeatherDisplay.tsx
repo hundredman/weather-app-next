@@ -1,3 +1,5 @@
+// components/WeatherDisplay.tsx
+
 import UnitToggle from './UnitToggle';
 import { useUnits } from '@/context/UnitsContext';
 import { WeatherData } from "@/types/weather";
@@ -5,6 +7,7 @@ import { getWeatherInfo, getAqiInfo } from "@/utils/weatherUtils";
 import { FiWind, FiDroplet, FiSmile, FiFeather } from 'react-icons/fi';
 import FavoriteButton from "./FavoriteButton";
 import HourlyChart from "./HourlyChart";
+import { UNITS } from '@/constants';
 
 interface WeatherDisplayProps {
   city: string;
@@ -13,7 +16,6 @@ interface WeatherDisplayProps {
   onToggleFavorite: () => void;
   localTime: Date | null;
 }
-// If we were to pull all of the above state into it's own context provider, we wouldn't need to pass it in directly, here.
 
 /**
  * Main component for displaying all weather-related information.
@@ -24,7 +26,7 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
   // Prepare all necessary data for rendering before the return statement.
   // This keeps the JSX clean and focused on presentation.
   const { unit } = useUnits();
-  const unitSymbol = unit === 'celsius' ? '°C' : '°F';
+  const unitSymbol = unit === UNITS.CELSIUS ? '°C' : '°F';
   const isDay = weather.current.is_day === 1;
   const { icon: WeatherIcon, description } = getWeatherInfo(weather.current.weather_code, isDay);
   const aqiText = getAqiInfo(weather.current.european_aqi);

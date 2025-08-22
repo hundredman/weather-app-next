@@ -1,8 +1,11 @@
+// context/UnitsContext.tsx
+
 'use client';
 
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { UNITS, UNITS_KEY } from '@/constants';
 
-type Unit = 'celsius' | 'fahrenheit';
+type Unit = typeof UNITS[keyof typeof UNITS];
 
 interface UnitsContextType {
   unit: Unit;
@@ -11,10 +14,9 @@ interface UnitsContextType {
 
 const UnitsContext = createContext<UnitsContextType | undefined>(undefined);
 
-const UNITS_KEY = 'weatherAppUnits';
-
+// UnitsProvider component to manage unit settings across the application
 export function UnitsProvider({ children }: { children: ReactNode }) {
-  const [unit, setUnit] = useState<Unit>('celsius');
+  const [unit, setUnit] = useState<Unit>(UNITS.CELSIUS);
 
   useEffect(() => {
     const storedUnit = localStorage.getItem(UNITS_KEY) as Unit;
@@ -35,6 +37,7 @@ export function UnitsProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Custom hook to use the UnitsContext
 export function useUnits() {
   const context = useContext(UnitsContext);
   if (context === undefined) {

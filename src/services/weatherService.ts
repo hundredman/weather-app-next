@@ -1,8 +1,12 @@
-import type { WeatherData, GeoLocation, AirQualityData } from '@/types/weather';
+// service/weatherService.ts
 
-interface GeocodingApiResponse {
-  results?: GeoLocation[];
-}
+import type { 
+  WeatherApiResponse, 
+  GeoLocation, 
+  AirQualityData, 
+  Unit,
+  GeocodingApiResponse,
+} from '@/types/weather';
 
 // Fetches a list of cities from the Geocoding API.
 export const searchCities = async (query: string): Promise<GeoLocation[]> => {
@@ -33,7 +37,7 @@ export const searchCities = async (query: string): Promise<GeoLocation[]> => {
 };
 
 // Fetches weather data (temperature, wind, etc.).
-export const fetchWeather = async (lat: number, lon: number, unit: 'celsius' | 'fahrenheit'): Promise<WeatherData> => {
+export const fetchWeather = async (lat: number, lon: number, unit: Unit): Promise<WeatherApiResponse> => {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),

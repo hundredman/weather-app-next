@@ -1,3 +1,5 @@
+// utils/weatherUtils.ts
+
 import { IconType } from 'react-icons';
 import {
   WiDaySunny, WiNightClear, WiDayCloudy, WiNightAltCloudy, WiCloudy,

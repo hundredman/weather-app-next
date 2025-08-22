@@ -1,3 +1,5 @@
+// components/SearchForm.tsx
+
 'use client';
 
 import { useState, useEffect, useRef, KeyboardEvent, forwardRef, MouseEvent, memo } from 'react';
@@ -12,6 +14,7 @@ interface SearchFormProps {
   isLoading: boolean;
 }
 
+// SearchForm component to handle city search and location retrieval
 const SearchForm = memo(forwardRef<HTMLInputElement, SearchFormProps>(
   ({ onCitySelect, onGetLocation, isLoading }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');

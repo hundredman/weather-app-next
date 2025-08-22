@@ -1,7 +1,11 @@
+// components/UnitToggle.tsx
+
 'use client';
 
 import { useUnits } from '@/context/UnitsContext';
+import { UNITS } from '@/constants';
 
+// UnitToggle component to switch between Celsius and Fahrenheit
 export default function UnitToggle() {
   const { unit, setUnit } = useUnits();
 
@@ -12,14 +16,14 @@ export default function UnitToggle() {
   return (
     <div className="flex items-center rounded-full bg-white/10 p-1 backdrop-blur-sm">
       <button
-        onClick={() => setUnit('celsius')}
-        className={`${baseClasses} ${unit === 'celsius' ? activeClasses : inactiveClasses}`}
+        onClick={() => setUnit(UNITS.CELSIUS)}
+        className={`${baseClasses} ${unit === UNITS.CELSIUS ? activeClasses : inactiveClasses}`}
       >
         °C
       </button>
       <button
-        onClick={() => setUnit('fahrenheit')}
-        className={`${baseClasses} ${unit === 'fahrenheit' ? activeClasses : inactiveClasses}`}
+        onClick={() => setUnit(UNITS.FAHRENHEIT)}
+        className={`${baseClasses} ${unit === UNITS.FAHRENHEIT ? activeClasses : inactiveClasses}`}
       >
         °F
       </button>

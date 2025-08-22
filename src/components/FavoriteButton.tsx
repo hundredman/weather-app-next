@@ -1,3 +1,5 @@
+// components/FavoriteButton.tsx
+
 import { FiStar } from 'react-icons/fi';
 
 interface FavoriteButtonProps {
@@ -5,11 +7,11 @@ interface FavoriteButtonProps {
   onClick: () => void;
 }
 
+// FavoriteButton component to toggle favorite status
 export default function FavoriteButton({ isFavorite, onClick }: FavoriteButtonProps) {
   return (
     <button
       onClick={onClick}
-      // Thanks for including the title here!
       title={isFavorite ? "Remove from favorites" : "Add to favorites"}
       className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
     >

@@ -1,9 +1,12 @@
+// components/HourlyChart.tsx
+
 'use client';
 
 import { useMemo, memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import type { WeatherData } from '@/types/weather';
 import { useUnits } from '@/context/UnitsContext';
+import { UNITS } from '@/constants';
 
 interface HourlyChartProps {
   hourlyData: WeatherData['hourly'];
@@ -16,7 +19,7 @@ interface HourlyChartProps {
  */
 const HourlyChart = memo(function HourlyChart({ hourlyData, timezone }: HourlyChartProps) {
   const { unit } = useUnits();
-  const unitSymbol = unit === 'celsius' ? 'C' : 'F';
+  const unitSymbol = unit === UNITS.CELSIUS ? 'C' : 'F';
 
   const chartData = useMemo(() => {
     return hourlyData.time.slice(0, 24).map((time, index) => ({

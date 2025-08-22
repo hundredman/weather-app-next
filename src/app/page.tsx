@@ -1,120 +1,26 @@
+// app/page.tsx
+
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
-import { useUnits } from '@/context/UnitsContext';
-import type { WeatherData, GeoLocation } from '@/types/weather';
-import { fetchWeather, fetchAirQuality } from '@/services/weatherService';
+import { useWeather } from '@/context/WeatherContext';
 import { getBackgroundColor } from '@/utils/weatherUtils';
-import SearchForm from '@/components/SearchForm';
-import FavoritesBar from '@/components/FavoritesBar';
-import WeatherDisplay from '@/components/WeatherDisplay';
+import SearchSection from '@/components/SearchSection';
+import ContentDisplay from '@/components/ContentDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
 
-const FAVORITES_KEY = 'weatherAppFavorites';
 const INITIAL_BG = 'from-gray-400 to-gray-200';
 
-/**
- * The main page component for the Weather App.
- * It manages all application state, handles data fetching,
- * and assembles the UI components.
- */
+// Main page component
 export default function Home() {
-  // --- Core Hooks ---
+  const { state } = useWeather();
   const { resolvedTheme } = useTheme();
-  const { unit } = useUnits();
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const isInitialRender = useRef(true);
-
-  // --- Application State ---
-  // Quick Review: I would suggest looking into moving all of the state into
-  // a context provider to help keep concerns separated. You could also look into
-  // using a reducer for your state management, but that isn't too big of a deal
-  // for a smaller app.
-  const [selectedCity, setSelectedCity] = useState<GeoLocation | null>(null);
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
-  const [localTime, setLocalTime] = useState<Date | null>(null);
-  const [favorites, setFavorites] = useState<GeoLocation[]>([]);
+  const { weather } = state;
   
-  // --- UI State ---
-  // I think keeping this state here makes sense, as it's mostly concerned with
-  // the same sort of visual representation that the page is largely controlling.
   const [bgClasses, setBgClasses] = useState([INITIAL_BG, INITIAL_BG]);
   const [activeBgIndex, setActiveBgIndex] = useState(0);
-  
-  // --- Data Fetching Logic ---
-  // You could potentially move 'celsius' and 'fahrenheit' into a constants file,
-  // seeing as they get reused in multiple places.
-  const fetchAndSetWeather = useCallback(
-    async (location: GeoLocation, currentUnit: 'celsius' | 'fahrenheit') => {
-      setIsLoading(true);
-      setError('');
-      setWeather(null);
-      setLocalTime(null);
-      try {
-        const [weatherData, airQualityData] = await Promise.all([
-          fetchWeather(location.latitude, location.longitude, currentUnit),
-          fetchAirQuality(location.latitude, location.longitude),
-        ]);
-        const combinedData = {
-          ...weatherData,
-          current: { ...weatherData.current, european_aqi: airQualityData.current.european_aqi },
-        };
-        setWeather(combinedData);
-setSelectedCity(location);
-        setLocalTime(new Date());
-        if (location.name !== 'Current Location') {
-          localStorage.setItem('lastCity', JSON.stringify(location));
-        }
-        searchInputRef.current?.blur();
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
 
-  // --- Side Effects (useEffect Hooks) ---
-  // This functionality could also be moved into the provider, as it's more concerned with
-  // application state than it is display.
-  // Load favorites from localStorage on initial mount.
-  useEffect(() => {
-    try {
-      const storedFavorites = localStorage.getItem(FAVORITES_KEY);
-      if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
-    } catch (e) {
-      console.error('Failed to parse favorites from localStorage', e);
-    }
-  }, []);
-
-  // Persist favorites to localStorage whenever they change.
-  useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-  }, [favorites]);
-  
-  // Restore the last session on initial mount.
-  useEffect(() => {
-    const lastSearchedCity = localStorage.getItem('lastCity');
-    if (lastSearchedCity) {
-      try {
-        const city: GeoLocation = JSON.parse(lastSearchedCity);
-        const savedUnit = (localStorage.getItem('weatherAppUnits') as 'celsius' | 'fahrenheit') || 'celsius';
-        fetchAndSetWeather(city, savedUnit);
-      } catch (e) {
-        console.error('Failed to parse last city from localStorage', e);
-        setIsLoading(false);
-      }
-    } else {
-      setIsLoading(false);
-    }
-  }, [fetchAndSetWeather]);
-  
-  // This makes sense to keep here.
-  // Trigger the background cross-fade effect when weather or theme changes.
   useEffect(() => {
     if (weather) {
       const code = weather.current.weather_code;
@@ -122,7 +28,6 @@ setSelectedCity(location);
       const isDarkMode = resolvedTheme === 'dark';
       const newBgClass = getBackgroundColor(code, isDay, isDarkMode);
       const currentBgClass = bgClasses[activeBgIndex];
-
       if (newBgClass !== currentBgClass) {
         const nextBgIndex = (activeBgIndex + 1) % 2;
         const newBgClasses = [...bgClasses];
@@ -133,134 +38,21 @@ setSelectedCity(location);
     }
   }, [weather, resolvedTheme, bgClasses, activeBgIndex]);
 
-  // Update the displayed local time every second.
-  useEffect(() => {
-    if (!weather?.timezone) return;
-    const intervalId = setInterval(() => setLocalTime(new Date()), 1000);
-    return () => clearInterval(intervalId);
-  }, [weather?.timezone]);
-
-  // Refetch weather data only when the temperature unit changes, skipping the initial render.
-  useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    if (selectedCity) {
-      fetchAndSetWeather(selectedCity, unit);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unit]);
-  
-  // Focus the search input on 'Enter' key press for better accessibility.
-  useEffect(() => {
-    const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement;
-      if (event.key === 'Enter' && target.tagName !== 'INPUT' && target.tagName !== 'BUTTON') {
-        event.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    document.addEventListener('keydown', handleGlobalKeyDown);
-    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
-  }, []);
-  
-  // --- Event Handlers ---
-  const handleCitySelect = useCallback((city: GeoLocation) => {
-    fetchAndSetWeather(city, unit);
-  }, [fetchAndSetWeather, unit]);
-
-  const handleGetLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setError('Geolocation is not supported by this browser.');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const currentLocation: GeoLocation = { id: Date.now(), name: 'Current Location', country: '', latitude, longitude };
-        fetchAndSetWeather(currentLocation, unit);
-      },
-      () => {
-        setError('Failed to get location. Please check your browser settings.');
-        setIsLoading(false);
-      },
-    );
-  }, [fetchAndSetWeather, unit]);
-  
-  const isCityFavorite = useCallback((city: GeoLocation | null): boolean => {
-    return !!city && favorites.some((fav) => fav.id === city.id);
-  }, [favorites]);
-
-  const handleToggleFavorite = useCallback(() => {
-    if (!selectedCity) return;
-    setFavorites((prev) =>
-      isCityFavorite(selectedCity)
-        ? prev.filter((fav) => fav.id !== selectedCity.id)
-        : [...prev, selectedCity],
-    );
-  }, [selectedCity, isCityFavorite]);
-
   return (
     <main className="relative z-0 flex min-h-screen flex-col items-center gap-8 p-6 sm:p-12">
-      {/* Background layers for the cross-fade effect */}
       <div className="fixed inset-0 -z-10">
-        <div
-          className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-1000 ${
-            activeBgIndex === 0 ? 'opacity-100' : 'opacity-0'
-          } ${bgClasses[0]}`}
-        />
-        <div
-          className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-1000 ${
-            activeBgIndex === 1 ? 'opacity-100' : 'opacity-0'
-          } ${bgClasses[1]}`}
-        />
+        <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-1000 ${activeBgIndex === 0 ? 'opacity-100' : 'opacity-0'} ${bgClasses[0]}`} />
+        <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-1000 ${activeBgIndex === 1 ? 'opacity-100' : 'opacity-0'} ${bgClasses[1]}`} />
       </div>
 
-      {/* Header section */}
       <div className="flex w-full max-w-md items-center justify-center gap-4">
-        <h1 className="text-3xl font-bold text-white text-shadow-md sm:text-4xl">
-          Weather App
-        </h1>
+        <h1 className="text-3xl font-bold text-white text-shadow-md sm:text-4xl">Weather App</h1>
         <ThemeToggle />
       </div>
 
-      {/* Search and Favorites section */}
-      {/* Not important, but I think it would make sense to move this into it's own component */}
-      <div className="w-full max-w-md space-y-4">
-        <SearchForm ref={searchInputRef} onCitySelect={handleCitySelect} onGetLocation={handleGetLocation} isLoading={isLoading} />
-        <FavoritesBar favorites={favorites} onSelect={handleCitySelect} isLoading={isLoading} />
-      </div>
-
-      {/* Main content display area */}
-      {/* 
-        This is a little bit confusing for me, as there are multiple layers of conditional rendering happening here 
-        As such, here is one way to simplify things.
-
-        Create a function (or component) that handles the inbetween states: loading and error. Create a readable const to inform this: isProcessingWeatherData could be an ok idea
-        Create a single constant for 'isReadyToDisplayWeather', and render WeatherDisplay when that's true.
-        Finally, create a default component, showing the default state if both conditions above are false.
-      */}
+      <SearchSection />
       <div className="w-full max-w-4xl">
-        {isLoading ? (
-          <p className="text-center text-white/80">Loading weather data...</p>
-        ) : error ? (
-          <div className="mx-auto max-w-md rounded-lg bg-red-500/50 p-4 text-center text-white">
-            <p>{error}</p>
-          </div>
-        ) : weather && selectedCity ? (
-          <WeatherDisplay
-            city={selectedCity.name}
-            weather={weather}
-            isFavorite={isCityFavorite(selectedCity)}
-            onToggleFavorite={handleToggleFavorite}
-            localTime={localTime}
-          />
-        ) : (
-          <div className="text-center text-white/80">
-            <p>Search for a city or use your current location to get the weather forecast.</p>
-          </div>
-        )}
+        <ContentDisplay />
       </div>
     </main>
   );
