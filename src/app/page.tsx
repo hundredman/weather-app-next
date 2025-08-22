@@ -27,6 +27,10 @@ export default function Home() {
   const isInitialRender = useRef(true);
 
   // --- Application State ---
+  // Quick Review: I would suggest looking into moving all of the state into
+  // a context provider to help keep concerns separated. You could also look into
+  // using a reducer for your state management, but that isn't too big of a deal
+  // for a smaller app.
   const [selectedCity, setSelectedCity] = useState<GeoLocation | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -35,10 +39,14 @@ export default function Home() {
   const [favorites, setFavorites] = useState<GeoLocation[]>([]);
   
   // --- UI State ---
+  // I think keeping this state here makes sense, as it's mostly concerned with
+  // the same sort of visual representation that the page is largely controlling.
   const [bgClasses, setBgClasses] = useState([INITIAL_BG, INITIAL_BG]);
   const [activeBgIndex, setActiveBgIndex] = useState(0);
   
   // --- Data Fetching Logic ---
+  // You could potentially move 'celsius' and 'fahrenheit' into a constants file,
+  // seeing as they get reused in multiple places.
   const fetchAndSetWeather = useCallback(
     async (location: GeoLocation, currentUnit: 'celsius' | 'fahrenheit') => {
       setIsLoading(true);
@@ -71,7 +79,8 @@ setSelectedCity(location);
   );
 
   // --- Side Effects (useEffect Hooks) ---
-
+  // This functionality could also be moved into the provider, as it's more concerned with
+  // application state than it is display.
   // Load favorites from localStorage on initial mount.
   useEffect(() => {
     try {
@@ -104,6 +113,7 @@ setSelectedCity(location);
     }
   }, [fetchAndSetWeather]);
   
+  // This makes sense to keep here.
   // Trigger the background cross-fade effect when weather or theme changes.
   useEffect(() => {
     if (weather) {
@@ -216,12 +226,21 @@ setSelectedCity(location);
       </div>
 
       {/* Search and Favorites section */}
+      {/* Not important, but I think it would make sense to move this into it's own component */}
       <div className="w-full max-w-md space-y-4">
         <SearchForm ref={searchInputRef} onCitySelect={handleCitySelect} onGetLocation={handleGetLocation} isLoading={isLoading} />
         <FavoritesBar favorites={favorites} onSelect={handleCitySelect} isLoading={isLoading} />
       </div>
 
       {/* Main content display area */}
+      {/* 
+        This is a little bit confusing for me, as there are multiple layers of conditional rendering happening here 
+        As such, here is one way to simplify things.
+
+        Create a function (or component) that handles the inbetween states: loading and error. Create a readable const to inform this: isProcessingWeatherData could be an ok idea
+        Create a single constant for 'isReadyToDisplayWeather', and render WeatherDisplay when that's true.
+        Finally, create a default component, showing the default state if both conditions above are false.
+      */}
       <div className="w-full max-w-4xl">
         {isLoading ? (
           <p className="text-center text-white/80">Loading weather data...</p>

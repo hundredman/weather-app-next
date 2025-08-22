@@ -13,6 +13,7 @@ interface WeatherDisplayProps {
   onToggleFavorite: () => void;
   localTime: Date | null;
 }
+// If we were to pull all of the above state into it's own context provider, we wouldn't need to pass it in directly, here.
 
 /**
  * Main component for displaying all weather-related information.
