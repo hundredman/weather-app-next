@@ -1,5 +1,3 @@
-// components/HourlyChart.tsx
-
 'use client';
 
 import { useMemo, memo } from 'react';
@@ -13,22 +11,28 @@ interface HourlyChartProps {
   timezone: string;
 }
 
-/**
- * A memoized component to display the 24-hour forecast in a line chart.
- * It now reflects the user's selected temperature unit (°C/°F).
- */
+// HourlyChart component to display hourly temperature data in a line chart
 const HourlyChart = memo(function HourlyChart({ hourlyData, timezone }: HourlyChartProps) {
   const { unit } = useUnits();
   const unitSymbol = unit === UNITS.CELSIUS ? 'C' : 'F';
 
   const chartData = useMemo(() => {
-    return hourlyData.time.slice(0, 24).map((time, index) => ({
+    const now = new Date();
+    let startIndex = hourlyData.time.findIndex(t => new Date(t) > now);
+
+    if (startIndex === -1) {
+      startIndex = 0;
+    }
+
+    const endIndex = startIndex + 24;
+
+    return hourlyData.time.slice(startIndex, endIndex).map((time, index) => ({
       time: new Date(time).toLocaleTimeString('en-US', {
         hour: 'numeric',
         hour12: true,
         timeZone: timezone,
       }),
-      temp: Math.round(hourlyData.temperature_2m[index]),
+      temp: Math.round(hourlyData.temperature_2m[startIndex + index]),
     }));
   }, [hourlyData, timezone]);
 
