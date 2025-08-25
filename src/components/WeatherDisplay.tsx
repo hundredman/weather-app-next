@@ -33,6 +33,11 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
 
   return (
     <div className="w-full max-w-4xl text-white">
+
+      <div className="absolute top-4 right-4">
+        <UnitToggle />
+      </div>
+
       {/* Section: Current Weather Conditions */}
       <div className="relative rounded-2xl bg-white/20 p-8 shadow-lg backdrop-blur-md">
         <FavoriteButton isFavorite={isFavorite} onClick={onToggleFavorite} />
@@ -60,9 +65,7 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
               <p className="text-6xl font-bold">{Math.round(weather.current.temperature_2m)}</p>
               <span className="mt-2 text-2xl font-medium">{unitSymbol}</span>
             </div>
-            <div className="absolute bottom-4 right-4">
-              <UnitToggle />
-            </div>
+            
           </div>
         </div>
 
