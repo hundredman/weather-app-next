@@ -9,6 +9,7 @@ import { getBackgroundColor } from '@/utils/weatherUtils';
 import SearchSection from '@/components/SearchSection';
 import ContentDisplay from '@/components/ContentDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
+import UnitToggle from '@/components/UnitToggle';
 
 const INITIAL_BG = 'from-gray-400 to-gray-200';
 
@@ -50,7 +51,14 @@ export default function Home() {
         <ThemeToggle />
       </div>
 
-      <SearchSection />
+      <div className="w-full max-w-md space-y-4">
+        <SearchSection />
+      </div>
+
+      <div className="flex w-full justify-end sm:hidden">
+        <UnitToggle />
+      </div>
+
       <div className="w-full max-w-4xl">
         <ContentDisplay />
       </div>

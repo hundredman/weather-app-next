@@ -34,7 +34,7 @@ export default function WeatherDisplay({ city, weather, isFavorite, onToggleFavo
   return (
     <div className="w-full max-w-4xl text-white">
 
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 hidden items-center gap-4 sm:flex">
         <UnitToggle />
       </div>
 
